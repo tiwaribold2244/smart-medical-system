@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartMed Pharmacy</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+body {font-family:'Segoe UI'; background:#f4f7fb;}
+
+.hero {
+  background: linear-gradient(90deg,#0d6efd,#00c6ff);
+  color:white;
+  padding:40px;
+  text-align:center;
+}
+
+.card {border-radius:15px; transition:0.3s;}
+.card:hover {transform:translateY(-8px);}
+
+.med-img {
+  width:100%;
+  height:140px;
+  object-fit:cover;
+  border-radius:10px;
+}
+
+.old-price {text-decoration:line-through; color:#888;}
+.new-price {color:#28a745; font-weight:bold;}
+
+.cart-box {
+  position:fixed;
+  right:0; top:0;
+  width:320px; height:100%;
+  background:white;
+  box-shadow:-5px 0 20px rgba(0,0,0,0.2);
+  padding:15px;
+  overflow:auto;
+  display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="hero">
+<h2>💊 SmartMed Pharmacy</h2>
+<p>We provide genuine medicines at fair and discounted prices</p>
+</div>
+
+<div class="container my-4">
+<div class="row">
+
+<!-- Paracetamol -->
+<div class="col-md-3 mb-4">
+<div class="card p-3 text-center">
+<img src="https://5.imimg.com/data5/SELLER/Default/2021/12/LK/ON/KX/43755673/paracetamol-500mg-tablet-1000x1000.jpg" class="med-img">
+<h5>Paracetamol</h5>
+<p><span class="old-price">₹50</span> <span class="new-price">₹35</span></p>
+<button class="btn btn-success w-100" onclick="addCart('Paracetamol',35)">Add to Cart</button>
+<button class="btn btn-warning w-100 mt-2" onclick="buyNow('Paracetamol',35)">Buy Now</button>
+</div>
+</div>
+
+<!-- Ibuprofen -->
+<div class="col-md-3 mb-4">
+<div class="card p-3 text-center">
+<img src="https://pics.walgreens.com/prodimg/369763/450.jpg" class="med-img">
+<h5>Ibuprofen</h5>
+<p><span class="old-price">₹80</span> <span class="new-price">₹55</span></p>
+<button class="btn btn-success w-100" onclick="addCart('Ibuprofen',55)">Add to Cart</button>
+<button class="btn btn-warning w-100 mt-2" onclick="buyNow('Ibuprofen',55)">Buy Now</button>
+</div>
+</div>
+
+<!-- Cetirizine -->
+<div class="col-md-3 mb-4">
+<div class="card p-3 text-center">
+<img src="https://images.unsplash.com/photo-1603398938378-e54eab446dde?w=400" class="med-img">
+<h5>Cetirizine</h5>
+<p><span class="old-price">₹40</span> <span class="new-price">₹25</span></p>
+<button class="btn btn-success w-100" onclick="addCart('Cetirizine',25)">Add to Cart</button>
+<button class="btn btn-warning w-100 mt-2" onclick="buyNow('Cetirizine',25)">Buy Now</button>
+</div>
+</div>
+
+<!-- Azithromycin -->
+<div class="col-md-3 mb-4">
+<div class="card p-3 text-center">
+<img src="https://images.unsplash.com/photo-1584362917165-526a968579e8?w=400" class="med-img">
+<h5>Azithromycin</h5>
+<p><span class="old-price">₹120</span> <span class="new-price">₹90</span></p>
+<button class="btn btn-success w-100" onclick="addCart('Azithromycin',90)">Add to Cart</button>
+<button class="btn btn-warning w-100 mt-2" onclick="buyNow('Azithromycin',90)">Buy Now</button>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- CART -->
+<div class="cart-box" id="cart">
+<h5>🛒 Cart</h5>
+<ul id="cartItems"></ul>
+<h6>Total: ₹<span id="total">0</span></h6>
+
+<button class="btn btn-success w-100 mt-2" onclick="openCheckout()">Checkout</button>
+<button class="btn btn-danger w-100 mt-2" onclick="toggleCart()">Close</button>
+</div>
+
+<button class="btn btn-primary position-fixed bottom-0 end-0 m-4" onclick="toggleCart()">🛒</button>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal fade" id="checkoutModal">
+<div class="modal-dialog">
+<div class="modal-content p-3">
+
+<h5>Checkout</h5>
+
+<input id="address" class="form-control mb-2" placeholder="Enter Address">
+
+<select id="payment" class="form-control mb-2" onchange="handlePayment()">
+<option value="">Select Payment</option>
+<option value="upi">UPI</option>
+<option value="cod">Cash</option>
+</select>
+
+<div id="upiBox" style="display:none; text-align:center;">
+<p>Scan QR to Pay</p>
+<img src="QR.jpeg" width="180" class="img-fluid shadow rounded">
+</div>
+
+<button class="btn btn-primary w-100 mt-3" onclick="placeOrder()">Place Order</button>
+
+</div>
+</div>
+</div>
+
+<!-- BUY NOW MODAL -->
+<div class="modal fade" id="buyNowModal">
+<div class="modal-dialog">
+<div class="modal-content p-3">
+
+<h5>Quick Buy</h5>
+
+<p id="buyItem"></p>
+
+<input id="buyAddress" class="form-control mb-2" placeholder="Enter Address">
+
+<select id="buyPayment" class="form-control mb-2" onchange="handleBuyPayment()">
+<option value="">Select Payment</option>
+<option value="upi">UPI</option>
+<option value="cod">Cash</option>
+</select>
+
+<div id="buyUpiBox" style="display:none; text-align:center;">
+<p>Scan QR to Pay</p>
+<img src="QR.jpeg" width="180" class="img-fluid shadow rounded">
+</div>
+
+<button class="btn btn-primary w-100 mt-3" onclick="nextStep()">Next</button>
+
+</div>
+</div>
+</div>
+
+<script>
+
+let total = 0;
+let selectedItem = "";
+
+/* CART */
+function addCart(name, price){
+let li = document.createElement("li");
+li.innerText = name + " - ₹" + price;
+document.getElementById("cartItems").appendChild(li);
+
+total += price;
+document.getElementById("total").innerText = total;
+}
+
+/* TOGGLE CART */
+function toggleCart(){
+let c = document.getElementById("cart");
+c.style.display = c.style.display === "block" ? "none" : "block";
+}
+
+/* CHECKOUT */
+function openCheckout(){
+if(total === 0){
+alert("Cart is empty");
+return;
+}
+new bootstrap.Modal(document.getElementById("checkoutModal")).show();
+}
+
+function handlePayment(){
+let p = document.getElementById("payment").value;
+document.getElementById("upiBox").style.display = (p === "upi") ? "block" : "none";
+}
+
+function placeOrder(){
+let address = document.getElementById("address").value;
+let payment = document.getElementById("payment").value;
+
+if(!address || !payment){
+alert("Fill all details");
+return;
+}
+
+alert("✅ Order placed successfully!");
+document.getElementById("cartItems").innerHTML = "";
+document.getElementById("total").innerText = 0;
+total = 0;
+}
+
+/* BUY NOW */
+function buyNow(name, price){
+selectedItem = name;
+document.getElementById("buyItem").innerText = name + " - ₹" + price;
+new bootstrap.Modal(document.getElementById("buyNowModal")).show();
+}
+
+function handleBuyPayment(){
+let p = document.getElementById("buyPayment").value;
+document.getElementById("buyUpiBox").style.display = (p === "upi") ? "block" : "none";
+}
+
+function nextStep(){
+let address = document.getElementById("buyAddress").value;
+let payment = document.getElementById("buyPayment").value;
+
+if(!address || !payment){
+alert("Please fill all details!");
+return;
+}
+
+alert("✅ Payment Successful!\nOrder for " + selectedItem + " confirmed.");
+}
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>

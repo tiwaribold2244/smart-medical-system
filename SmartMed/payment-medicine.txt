@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SmartMed Pharmacy</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+body {font-family:'Segoe UI'; background:#f4f7fb;}
+
+.hero {
+  background: linear-gradient(90deg,#0d6efd,#00c6ff);
+  color:white;
+  padding:40px;
+  text-align:center;
+}
+
+.card {border-radius:15px; transition:0.3s;}
+.card:hover {transform:translateY(-8px);}
+
+.med-img {
+  width:100%; height:140px; object-fit:cover;
+  border-radius:10px; transition:0.4s;
+}
+.card:hover .med-img {transform:scale(1.1);}
+
+.old-price {text-decoration:line-through; color:#888;}
+.new-price {color:#28a745; font-weight:bold;}
+
+.cart-box {
+  position:fixed;
+  right:0; top:0;
+  width:320px; height:100%;
+  background:white;
+  box-shadow:-5px 0 20px rgba(0,0,0,0.2);
+  padding:15px; overflow:auto;
+  display:none;
+}
+</style>
+</head>
+
+<body>
+
+<div class="hero">
+<h2>💊 SmartMed Pharmacy</h2>
+<p>We provide genuine medicines at fair and discounted prices</p>
+</div>
+
+<div class="container my-4">
+
+<input type="text" id="search" class="form-control mb-3" placeholder="Search medicine..." onkeyup="searchMed()">
+
+<div class="row" id="medList">
+
+<div class="col-md-4 mb-4 med">
+<div class="card p-3 text-center">
+<img src="https://5.imimg.com/data5/SELLER/Default/2021/12/LK/ON/KX/43755673/paracetamol-500mg-tablet-1000x1000.jpg" class="med-img">
+<h5>Paracetamol</h5>
+<p><span class="old-price">₹50</span> <span class="new-price">₹35</span></p>
+<button class="btn btn-success btn-sm" onclick="addCart('Paracetamol',35)">Add to Cart</button>
+</div>
+</div>
+
+<div class="col-md-4 mb-4 med">
+<div class="card p-3 text-center">
+<img src="https://pics.walgreens.com/prodimg/369763/450.jpg" class="med-img">
+<h5>Ibuprofen</h5>
+<p><span class="old-price">₹80</span> <span class="new-price">₹55</span></p>
+<button class="btn btn-success btn-sm" onclick="addCart('Ibuprofen',55)">Add to Cart</button>
+</div>
+</div>
+
+<div class="col-md-4 mb-4 med">
+<div class="card p-3 text-center">
+<img src="https://images.unsplash.com/photo-1603398938378-e54eab446dde?w=400" class="med-img">
+<h5>Cetirizine</h5>
+<p><span class="old-price">₹40</span> <span class="new-price">₹25</span></p>
+<button class="btn btn-success btn-sm" onclick="addCart('Cetirizine',25)">Add to Cart</button>
+</div>
+</div>
+
+</div>
+</div>
+
+<!-- CART -->
+<div class="cart-box" id="cart">
+<h5>🛒 Cart</h5>
+<ul id="cartItems"></ul>
+<h6>Total: ₹<span id="total">0</span></h6>
+
+<button class="btn btn-success w-100 mt-2" onclick="openCheckout()">Proceed to Checkout</button>
+<button class="btn btn-danger w-100 mt-2" onclick="toggleCart()">Close</button>
+</div>
+
+<button class="btn btn-primary position-fixed bottom-0 end-0 m-4" onclick="toggleCart()">🛒</button>
+
+<!-- CHECKOUT MODAL -->
+<div class="modal fade" id="checkoutModal">
+<div class="modal-dialog">
+<div class="modal-content p-3">
+
+<h5>Checkout</h5>
+
+<input id="address" class="form-control mb-2" placeholder="Enter Delivery Address">
+
+<select id="payment" class="form-control mb-3" onchange="handlePayment()">
+<option value="">Select Payment Method</option>
+<option value="upi">UPI Payment</option>
+<option value="cod">Cash on Delivery</option>
+</select>
+
+<div id="upiSection" style="display:none; text-align:center;">
+<p>Scan & Pay via Google Pay</p>
+
+<!-- Replace with your real QR later -->
+<img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=upi://pay" width="150">
+
+</div>
+
+<button class="btn btn-primary w-100 mt-3" onclick="placeOrder()">Place Order</button>
+
+</div>
+</div>
+</div>
+
+<script>
+
+let total=0;
+
+/* Cart */
+function addCart(name,price){
+let li=document.createElement("li");
+li.innerText=name+" - ₹"+price;
+document.getElementById("cartItems").appendChild(li);
+
+total+=price;
+document.getElementById("total").innerText=total;
+}
+
+function toggleCart(){
+let cart=document.getElementById("cart");
+cart.style.display = cart.style.display==="block"?"none":"block";
+}
+
+/* Search */
+function searchMed(){
+let input=document.getElementById("search").value.toLowerCase();
+document.querySelectorAll(".med").forEach(m=>{
+m.style.display = m.innerText.toLowerCase().includes(input)?"block":"none";
+});
+}
+
+/* Checkout */
+function openCheckout(){
+if(total===0){
+alert("Cart is empty!");
+return;
+}
+new bootstrap.Modal(document.getElementById('checkoutModal')).show();
+}
+
+function handlePayment(){
+let method=document.getElementById("payment").value;
+document.getElementById("upiSection").style.display = (method==="upi") ? "block" : "none";
+}
+
+function placeOrder(){
+let address=document.getElementById("address").value;
+let payment=document.getElementById("payment").value;
+
+if(!address || !payment){
+alert("Please fill all details!");
+return;
+}
+
+alert("✅ Order Placed Successfully!\nDelivery to: " + address);
+
+document.getElementById("cartItems").innerHTML="";
+document.getElementById("total").innerText="0";
+total=0;
+}
+
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+</body>
+</html>
